@@ -27,19 +27,14 @@ def scrape_indeed_jobs(category: str, location: str = "") -> list:
             print("ERROR: ZENROWS_KEY environmental variable is missing. Cannot route through proxy.")
             return []
 
+        # We no longer tunnel via standard proxy. We will hit ZenRows Premium API directly.
         browser = p.chromium.launch(
             headless=True,
-            proxy={
-                "server": "http://proxy.zenrows.com:8001",
-                "username": zenrows_key,
-                "password": ""
-            },
             args=[
                 '--disable-dev-shm-usage',
                 '--no-sandbox',
                 '--disable-blink-features=AutomationControlled',
-                '--disable-extensions',
-                '--ignore-certificate-errors'
+                '--disable-extensions'
             ]
         )
         
@@ -50,11 +45,15 @@ def scrape_indeed_jobs(category: str, location: str = "") -> list:
         page = context.new_page()
         
         try:
-            # We attempt navigation.
-            page.goto(url, timeout=15000, wait_until="domcontentloaded")
+            # Tell ZenRows to use their Premium Residential pool and render javascript for us
+            api_endpoint = f"https://api.zenrows.com/v1/?apikey={zenrows_key}&url={urllib.parse.quote(url)}&js_render=true&premium_proxy=true"
             
-            # Short wait for Cloudflare Challenge, if it resolves, we try to grab data
-            page.wait_for_selector(".job_seen_beacon", timeout=8000)
+            print("Hitting ZenRows Direct API to bypass Indeed...")
+            # We must give ZenRows up to 60 seconds because bypassing Cloudflare takes time!
+            page.goto(api_endpoint, timeout=60000, wait_until="domcontentloaded")
+            
+            # Wait up to 15 seconds for the indeed DOM to parse through ZenRows
+            page.wait_for_selector(".job_seen_beacon", timeout=15000)
             
             job_cards = page.locator(".job_seen_beacon").all()
             for card in job_cards[:15]:
