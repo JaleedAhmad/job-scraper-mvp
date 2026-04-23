@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.xlsx
+jobs_cache.csv
+.DS_Store

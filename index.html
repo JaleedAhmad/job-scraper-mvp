@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>On-Demand Job Scraper</title>
+    
+    <!-- Bootstrap 5 CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts for Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Premium Dark Mode & Glassmorphism Design System */
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        /* Hero Section Styling */
+        .hero-section {
+            padding: 80px 0 40px;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .hero-title {
+            font-weight: 800;
+            font-size: 3.5rem;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Control Panel */
+        .control-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Custom Input & Premium Buttons */
+        .form-select, .form-control {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            background-color: rgba(15, 23, 42, 0.8);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+            color: #fff;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #3b82f6, #4f46e5);
+            border: none;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .btn-outline-premium {
+            background: transparent;
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-premium:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--text-light);
+            border-color: var(--text-light);
+        }
+
+        /* Table Styling */
+        .results-container {
+            display: none; /* Hidden by default until search */
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .table {
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            border-bottom: 2px solid var(--glass-border);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody td {
+            border-bottom: 1px solid var(--glass-border);
+            vertical-align: middle;
+            padding: 16px 8px;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        
+        .job-link {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .job-link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+
+        /* Status & Loaders */
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner-grow {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .badge-source {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <h1 class="hero-title">Talent Radar</h1>
+        <p class="hero-subtitle">High-speed, on-demand candidate sourcing engine. Cached for performance, scraped live when needed.</p>
+    </header>
+
+    <!-- Interactive Control Panel -->
+    <section class="control-panel">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <select id="jobCategory" class="form-select" aria-label="Job Category Selection">
+                    <option value="" disabled>Select a role to source...</option>
+                    <option value="DevOps Engineer" selected>DevOps Engineer</option>
+                    <option value="Cloud Architect">Cloud Architect</option>
+                    <option value="AI Developer">AI Developer</option>
+                </select>
+            </div>
+            <div class="col-md-6 d-flex gap-3">
+                <button id="searchBtn" class="btn btn-premium flex-grow-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search me-2" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+                    Source Candidates
+                </button>
+                <button id="downloadBtn" class="btn btn-outline-premium disabled" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-excel me-2" viewBox="0 0 16 16"><path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
+                    Export
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Spinner Sequence -->
+    <div id="loader">
+        <div class="spinner-grow text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h4 id="loaderText">Initializing Scraper Engine...</h4>
+        <p class="text-muted" style="font-size: 0.9rem;">Navigating to Indeed and bypassing protections. This takes ~15 seconds.</p>
+    </div>
+
+    <!-- Results Table -->
+    <section id="resultsContainer" class="results-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="m-0" style="font-weight: 600;">Intelligence Report</h3>
+            <span id="dataSourceBadge" class="badge-source" style="display: none;">Served from Cache</span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-borderless table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 30%">Role / Title</th>
+                        <th style="width: 25%">Organization</th>
+                        <th style="width: 25%">Location</th>
+                        <th style="width: 20%">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Dynamic Rows Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="noResultsMsg" class="text-center text-muted py-4" style="display: none;">
+            No candidates identified. Retry or select another category.
+        </div>
+    </section>
+</div>
+
+<!-- Vanilla Logic Script -->
+<script src="/script.js"></script>
+</body>
+</html>
