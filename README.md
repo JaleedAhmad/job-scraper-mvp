@@ -24,10 +24,19 @@ This application is built with a **Cache-First Architecture** to maximize speed 
 
 ## 💻 Local Setup & Execution
 
-1. **Clone the repository and Create Virtual Env:**
+1. **Create and Activate a Virtual Environment:**
+   *(Cross-platform support ensures this runs anywhere.)*
+   
+   **Linux / macOS:**
    ```bash
    python3 -m venv venv
    source venv/bin/activate
+   ```
+   
+   **Windows (PowerShell/CMD):**
+   ```powershell
+   python -m venv venv
+   venv\Scripts\activate
    ```
 
 2. **Install Core Dependencies:**
