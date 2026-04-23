@@ -5,3 +5,4 @@ __pycache__/
 *.xlsx
 jobs_cache.csv
 .DS_Store
+.env

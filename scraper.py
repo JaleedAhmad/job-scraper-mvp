@@ -1,7 +1,11 @@
+import os
 import time
 import random
 import urllib.parse
+from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+
+load_dotenv()
 
 def scrape_indeed_jobs(category: str, location: str = "") -> list:
     """
@@ -18,13 +22,24 @@ def scrape_indeed_jobs(category: str, location: str = "") -> list:
     url = f"https://www.indeed.com/jobs?q={query}{location_query}"
 
     with sync_playwright() as p:
+        zenrows_key = os.getenv("ZENROWS_KEY")
+        if not zenrows_key:
+            print("ERROR: ZENROWS_KEY environmental variable is missing. Cannot route through proxy.")
+            return []
+
         browser = p.chromium.launch(
             headless=True,
+            proxy={
+                "server": "http://proxy.zenrows.com:8001",
+                "username": zenrows_key,
+                "password": ""
+            },
             args=[
                 '--disable-dev-shm-usage',
                 '--no-sandbox',
                 '--disable-blink-features=AutomationControlled',
-                '--disable-extensions'
+                '--disable-extensions',
+                '--ignore-certificate-errors'
             ]
         )
         
