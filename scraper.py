@@ -64,22 +64,7 @@ def scrape_indeed_jobs(category: str, location: str = "") -> list:
                 })
                 
         except Exception as e:
-            print(f"Cloudflare Bot Protection Blocked the Request. Using Fallback Demo Data...")
-            # ========================================================
-            # MVP DEMO FALLBACK: When Cloudflare blocks our Server IP, 
-            # we inject realistic test data so the dashboard doesn't break!
-            # ========================================================
-            companies = ["TechNova Solutions", "CloudScale Inc.", "DataDynasty", "Hyperion Systems", "Orbit AI", "Cyberdyne Analytics", "FinTech Global", "Nexus Innovations", "InnoWave Solutions"]
-            locations = ["Remote", "San Francisco, CA", "New York, NY", "Austin, TX", "Seattle, WA", "Chicago, IL", "Denver, CO", "Hybrid - Boston, MA"]
-            
-            # Generate 8 random but realistic job listings based on the user's category
-            for i in range(8):
-                results.append({
-                    "Title": f"Senior {category}",
-                    "Company": random.choice(companies),
-                    "Location": location if location else random.choice(locations),
-                    "Link": f"https://www.indeed.com/jobs?q={query}{location_query}"
-                })
+            print(f"Scraping error (or blocked by Cloudflare): {e}")
         finally:
             browser.close()
             
