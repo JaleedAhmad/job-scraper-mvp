@@ -54,9 +54,9 @@ This application is bundled directly so the FastAPI backend acts as the HTML web
 2. **Environment:** `Python 3`
 3. **Build Command:** 
    ```bash
-   pip install -r requirements.txt && playwright install --with-deps chromium
+   pip install -r requirements.txt && playwright install chromium
    ```
-   *(Playwright MUST install system dependencies for Chromium during the build phase.)*
+   *(Render natively handles the system graphics dependencies).*
 4. **Start Command:** 
    ```bash
    uvicorn main:app --host 0.0.0.0 --port $PORT
