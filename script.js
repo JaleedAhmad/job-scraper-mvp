@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataSourceBadge = document.getElementById('dataSourceBadge');
 
     let currentCategory = '';
+    let currentLocation = '';
 
     // Advanced loader texts to make the short wait feel dynamic
     const loaderMessages = [
@@ -23,9 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchBtn.addEventListener('click', async () => {
         const category = categorySelect.value;
+        const locationInput = document.getElementById('jobLocation').value.trim();
         if (!category) return;
         
         currentCategory = category;
+        currentLocation = locationInput;
 
         // Reset UI Context
         resultsContainer.style.display = 'none';
@@ -45,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Make API Call
         try {
-            const response = await fetch(`/api/jobs?category=${encodeURIComponent(category)}`);
+            const url = `/api/jobs?category=${encodeURIComponent(category)}&location=${encodeURIComponent(locationInput)}`;
+            const response = await fetch(url);
             const json = await response.json();
             
             clearInterval(loaderInterval);
@@ -66,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.addEventListener('click', () => {
         if (!currentCategory) return;
         // Direct browser download via native navigation
-        window.location.href = `/api/download?category=${encodeURIComponent(currentCategory)}`;
+        window.location.href = `/api/download?category=${encodeURIComponent(currentCategory)}&location=${encodeURIComponent(currentLocation)}`;
     });
 
     function renderTable(responseJson) {
