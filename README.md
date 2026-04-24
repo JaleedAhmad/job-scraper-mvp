@@ -5,7 +5,8 @@ A fully-functional, cache-driven job scraping application built specifically to 
 ## 🚀 Tech Stack
 
 *   **Backend Engine:** FastAPI (Python)
-*   **Scraping Module:** Playwright Sync (Chromium)
+*   **Scraping Module:** Python Requests & Playwright Sync (Offline Sandbox Parsing)
+*   **Anti-Bot API:** ZenRows Premium Residential Proxy network
 *   **Data Processing:** Pandas & OpenPyXL
 *   **Frontend UI:** HTML5, Vanilla JS (Fetch API), and Bootstrap 5 (Glassmorphism Custom CSS)
 
@@ -17,10 +18,21 @@ This application is built with a **Cache-First Architecture** to maximize speed 
 2.  **Cache Assessment (Pandas):** The FastAPI backend intercepts the request and reads `jobs_cache.csv`. 
     *   **Cache Hit:** If identical data exists and was scraped within 24 hours, it translates the DataFrame into JSON and returns it near-instantly.
     *   **Cache Miss:** If no data exists (or the data is stale), it triggers the Playwright Engine.
-3.  **Live Extraction & Fallback:** Playwright dynamically launches headless Chromium and targets Indeed.
-    *   *Note on Bot Protection:* Indeed strictly blocks Headless Server Traffic (Cloudflare Just-A-Moment loop). This MVP intentionally catches that timeout error and deploys an **Intelligent Mock Fallback Generator**—injecting curated, realistic candidate data so the UI demo never breaks in front of a client.
+3.  **Live Extraction via ZenRows:** To bypass aggressive Cloudflare protections and Just-A-Moment loops on cloud architectures, the scraper hits the **ZenRows API** natively using `requests`. ZenRows utilizes premium residential proxies and manages JS-rendering remotely, returning the fully hydrated DOM.
+4.  **Offline Playwright Parsing:** To prevent Indeed's embedded Cross-Origin React rules from breaking the layout, the extracted ZenRows HTML is injected directly into an offline Playwright Sandbox via `page.set_content()`. Playwright instantly parses the DOM entirely offline and retrieves the nested elements reliably.
 4.  **Local Persistence:** The newly generated/scraped data is concatenated into the Pandas DataFrame and permanently saved to `jobs_cache.csv`. 
 5.  **Export:** Hitting `/api/download` converts the cached DataFrame into a `.xlsx` binary and triggers a native browser download.
+
+## 🔑 Environment Variables
+
+This app relies on the **ZenRows Premium Proxy API** to securely navigate Cloudflare anti-bot systems. You must configure this key for the app to scrape LIVE data successfully.
+
+1.  Sign up at [ZenRows](https://www.zenrows.com/) and grab an API Key.
+2.  Create a `.env` file in the root directory:
+    ```env
+    ZENROWS_KEY=your_api_key_here
+    ```
+*(Note: As per best practices, `.env` is listed in your `.gitignore` and won't be pushed to the repository).*
 
 ## 💻 Local Setup & Execution
 
